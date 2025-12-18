@@ -39,5 +39,5 @@ public class Zone {
         this.active = active;
     }
 
-    // getters and setters
+    
 }
