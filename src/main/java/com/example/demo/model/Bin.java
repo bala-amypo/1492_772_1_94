@@ -116,5 +116,5 @@ public class Bin {
         updatedAt = LocalDateTime.now();
     }
 
-    // getters and setters
+    
 }

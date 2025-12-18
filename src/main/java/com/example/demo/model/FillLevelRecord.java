@@ -47,5 +47,5 @@ public class FillLevelRecord {
         this.isWeekend = isWeekend;
     }
 
-    // getters and setters
+    
 }
