@@ -1,10 +1,10 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Model
+@Entity
 public class OverflowPrediction {
 
     @Id
@@ -70,5 +70,5 @@ public class OverflowPrediction {
         this.generatedAt = generatedAt;
     }
 
-    // getters and setters
+   
 }

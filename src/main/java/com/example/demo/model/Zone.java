@@ -1,8 +1,8 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 
-@Model
+@Entity
 public class Zone {
 
     @Id
@@ -13,6 +13,7 @@ public class Zone {
     private String zoneName;
 
     private String description;
+    private Boolean active = true;
     public Long getId() {
         return id;
     }
@@ -37,7 +38,6 @@ public class Zone {
     public void setActive(Boolean active) {
         this.active = active;
     }
-    private Boolean active = true;
 
     // getters and setters
 }

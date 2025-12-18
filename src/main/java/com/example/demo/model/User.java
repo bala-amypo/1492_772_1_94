@@ -1,8 +1,8 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 
-@Model
+@Entity
 public class User {
 
     @Id
@@ -14,6 +14,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    private String password;
     public Long getId() {
         return id;
     }
@@ -44,8 +45,7 @@ public class User {
     public void setRole(String role) {
         this.role = role;
     }
-    private String password;
     private String role;
 
-    // getters and setters
+   
 }
