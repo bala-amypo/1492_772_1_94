@@ -2,7 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 
-@Entity
+@Model
 public class User {
 
     @Id

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
+@Model
 public class OverflowPrediction {
 
     @Id
