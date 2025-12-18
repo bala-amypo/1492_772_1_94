@@ -22,5 +22,53 @@ public class OverflowPrediction {
 
     private LocalDateTime generatedAt;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Bin getBin() {
+        return bin;
+    }
+
+    public void setBin(Bin bin) {
+        this.bin = bin;
+    }
+
+    public LocalDate getPredictedFullDate() {
+        return predictedFullDate;
+    }
+
+    public void setPredictedFullDate(LocalDate predictedFullDate) {
+        this.predictedFullDate = predictedFullDate;
+    }
+
+    public Integer getDaysUntilFull() {
+        return daysUntilFull;
+    }
+
+    public void setDaysUntilFull(Integer daysUntilFull) {
+        this.daysUntilFull = daysUntilFull;
+    }
+
+    public UsagePatternModel getModelUsed() {
+        return modelUsed;
+    }
+
+    public void setModelUsed(UsagePatternModel modelUsed) {
+        this.modelUsed = modelUsed;
+    }
+
+    public LocalDateTime getGeneratedAt() {
+        return generatedAt;
+    }
+
+    public void setGeneratedAt(LocalDateTime generatedAt) {
+        this.generatedAt = generatedAt;
+    }
+
     // getters and setters
 }
