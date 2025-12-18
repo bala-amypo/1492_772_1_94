@@ -1,57 +1,120 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Model
-public class FillLevelRecord {
+@Entity
+public class Bin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Bin bin;
+    @Column(unique = true)
+    private String identifier;
 
-    private Double fillPercentage;
-    private LocalDateTime recordedAt;
-    private Boolean isWeekend;
+    private String locationDescription;
+    private Double latitude;
+    private Double longitude;
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
-    public Bin getBin() {
-        return bin;
+
+    public String getIdentifier() {
+        return identifier;
     }
-    public void setBin(Bin bin) {
-        this.bin = bin;
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
-    public Double getFillPercentage() {
-        return fillPercentage;
+
+    public String getLocationDescription() {
+        return locationDescription;
     }
-    public FillLevelRecord(Long id, Bin bin, Double fillPercentage, LocalDateTime recordedAt, Boolean isWeekend) {
-        this.id = id;
-        this.bin = bin;
-        this.fillPercentage = fillPercentage;
-        this.recordedAt = recordedAt;
-        this.isWeekend = isWeekend;
+
+    public void setLocationDescription(String locationDescription) {
+        this.locationDescription = locationDescription;
     }
-    public void setFillPercentage(Double fillPercentage) {
-        this.fillPercentage = fillPercentage;
+
+    public Double getLatitude() {
+        return latitude;
     }
-    public LocalDateTime getRecordedAt() {
-        return recordedAt;
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
     }
-    public void setRecordedAt(LocalDateTime recordedAt) {
-        this.recordedAt = recordedAt;
+
+    public Double getLongitude() {
+        return longitude;
     }
-    public Boolean getIsWeekend() {
-        return isWeekend;
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
-    public void setIsWeekend(Boolean isWeekend) {
-        this.isWeekend = isWeekend;
+
+    public Zone getZone() {
+        return zone;
     }
-    
+
+    public void setZone(Zone zone) {
+        this.zone = zone;
+    }
+
+    public Double getCapacityLiters() {
+        return capacityLiters;
+    }
+
+    public void setCapacityLiters(Double capacityLiters) {
+        this.capacityLiters = capacityLiters;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    @ManyToOne
+    private Zone zone;
+
+    private Double capacityLiters;
+    private Boolean active = true;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // getters and setters
 }

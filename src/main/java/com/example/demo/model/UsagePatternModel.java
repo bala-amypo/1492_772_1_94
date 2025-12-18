@@ -1,14 +1,17 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Model
+@Entity
 public class UsagePatternModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    private Bin bin;
 
     public Long getId() {
         return id;
@@ -40,14 +43,9 @@ public class UsagePatternModel {
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
-    @ManyToOne
-    private Bin bin;
-
     private Double avgDailyIncreaseWeekday;
     private Double avgDailyIncreaseWeekend;
     private LocalDateTime lastUpdated;
 
-    // getters and setters
+    
 }
-
-

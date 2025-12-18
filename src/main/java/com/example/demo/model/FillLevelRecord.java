@@ -1,9 +1,9 @@
-package com.example.demo.model;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Model
+@Entity
 public class FillLevelRecord {
 
     @Id
@@ -46,5 +46,6 @@ public class FillLevelRecord {
     public void setIsWeekend(Boolean isWeekend) {
         this.isWeekend = isWeekend;
     }
-    
+
+    // getters and setters
 }
