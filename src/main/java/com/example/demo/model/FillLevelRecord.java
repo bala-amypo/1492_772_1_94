@@ -16,6 +16,5 @@ public class FillLevelRecord {
     private Double fillPercentage;
     private LocalDateTime recordedAt;
     private Boolean isWeekend;
-
-    // getters and setters
+    
 }

@@ -4,37 +4,54 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class Bin {
+public class FillLevelRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String identifier;
-
-    private String locationDescription;
-    private Double latitude;
-    private Double longitude;
-
     @ManyToOne
-    private Zone zone;
+    private Bin bin;
 
-    private Double capacityLiters;
-    private Boolean active = true;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
+    private Double fillPercentage;
+    private LocalDateTime recordedAt;
+    private Boolean isWeekend;
+    public Long getId() {
+        return id;
     }
-
-    @PreUpdate
-    public void onUpdate() {
-        updatedAt = LocalDateTime.now();
+    public void setId(Long id) {
+        this.id = id;
     }
-
-    // getters and setters
+    public Bin getBin() {
+        return bin;
+    }
+    public void setBin(Bin bin) {
+        this.bin = bin;
+    }
+    public Double getFillPercentage() {
+        return fillPercentage;
+    }
+    public FillLevelRecord(Long id, Bin bin, Double fillPercentage, LocalDateTime recordedAt, Boolean isWeekend) {
+        this.id = id;
+        this.bin = bin;
+        this.fillPercentage = fillPercentage;
+        this.recordedAt = recordedAt;
+        this.isWeekend = isWeekend;
+    }
+    public void setFillPercentage(Double fillPercentage) {
+        this.fillPercentage = fillPercentage;
+    }
+    public LocalDateTime getRecordedAt() {
+        return recordedAt;
+    }
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = recordedAt;
+    }
+    public Boolean getIsWeekend() {
+        return isWeekend;
+    }
+    public void setIsWeekend(Boolean isWeekend) {
+        this.isWeekend = isWeekend;
+    }
+    
 }
