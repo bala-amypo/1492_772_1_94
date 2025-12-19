@@ -1,28 +1,55 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.UsagePatternModel;
+import com.example.demo.model.UsagePatternModel;
 import com.example.demo.service.UsagePatternModelService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/models")
+@RequestMapping("/api/models")
 public class UsagePatternModelController {
 
-    private final UsagePatternModelService service;
+    private final UsagePatternModelService modelService;
 
-    public UsagePatternModelController(UsagePatternModelService service) {
-        this.service = service;
+    public UsagePatternModelController(
+            UsagePatternModelService modelService) {
+        this.modelService = modelService;
     }
 
     @PostMapping
-    public UsagePatternModel create(@RequestBody UsagePatternModel model) {
-        return service.createModel(model);
+    public ResponseEntity<UsagePatternModel> createModel(
+            @Valid @RequestBody UsagePatternModel model) {
+
+        return new ResponseEntity<>(
+                modelService.createModel(model),
+                HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsagePatternModel> updateModel(
+            @PathVariable Long id,
+            @Valid @RequestBody UsagePatternModel model) {
+
+        return ResponseEntity.ok(
+                modelService.updateModel(id, model));
+    }
+
+    @GetMapping("/bin/{binId}")
+    public ResponseEntity<UsagePatternModel> getModelForBin(
+            @PathVariable Long binId) {
+
+        return ResponseEntity.ok(
+                modelService.getModelForBin(binId));
     }
 
     @GetMapping
-    public List<UsagePatternModel> getAll() {
-        return service.getAllModels();
+    public ResponseEntity<List<UsagePatternModel>> getAllModels() {
+
+        return ResponseEntity.ok(
+                modelService.getAllModels());
     }
 }

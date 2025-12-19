@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.UsagePatternModel;
+import com.example.demo.model.UsagePatternModel;
 
 import java.util.List;
 
