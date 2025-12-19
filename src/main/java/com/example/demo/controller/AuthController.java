@@ -1,30 +1,49 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.security.JwtUtil;
+import com.example.demo.model.User;
+import com.example.demo.service.UserService;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
-    public AuthController(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    // ✅ REGISTER
+    @PostMapping("/register")
+    public ResponseEntity<User> register(
+            @RequestParam @NotBlank String fullName,
+            @RequestParam @Email String email,
+            @RequestParam @NotBlank String password) {
 
-        // Dummy validation (replace with DB later)
-        if (!"admin".equals(request.getUsername()) ||
-            !"password".equals(request.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+        User user = userService.registerUser(
+                fullName, email, password);
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    // ✅ LOGIN (simple validation, NO JWT)
+    @PostMapping("/login")
+    public ResponseEntity<User> login(
+            @RequestParam @Email String email,
+            @RequestParam @NotBlank String password) {
+
+        User user = userService.getByEmail(email);
+
+        if (!user.getPassword().equals(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .build();
         }
 
-        String token = jwtUtil.generateToken(request.getUsername());
-        return new AuthResponse(token);
+        return ResponseEntity.ok(user);
     }
 }
