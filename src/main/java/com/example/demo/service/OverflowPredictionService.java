@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.OverflowPrediction;
+import com.example.demo.model.OverflowPrediction;
 
 import java.util.List;
 
