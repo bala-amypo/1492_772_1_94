@@ -1,9 +1,13 @@
-package com.example.demo.entity;
+package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
+import java.sql.Timestamp;
 
 @Entity
+@Table(name = "usage_pattern_models")
 public class UsagePatternModel {
 
     @Id
@@ -11,41 +15,30 @@ public class UsagePatternModel {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "bin_id", nullable = false)
+    @NotNull(message = "Bin is required")
     private Bin bin;
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Bin getBin() {
-        return bin;
-    }
-    public void setBin(Bin bin) {
-        this.bin = bin;
-    }
-    public Double getAvgDailyIncreaseWeekday() {
-        return avgDailyIncreaseWeekday;
-    }
-    public void setAvgDailyIncreaseWeekday(Double avgDailyIncreaseWeekday) {
-        this.avgDailyIncreaseWeekday = avgDailyIncreaseWeekday;
-    }
-    public Double getAvgDailyIncreaseWeekend() {
-        return avgDailyIncreaseWeekend;
-    }
-    public void setAvgDailyIncreaseWeekend(Double avgDailyIncreaseWeekend) {
-        this.avgDailyIncreaseWeekend = avgDailyIncreaseWeekend;
-    }
-    public LocalDateTime getLastUpdated() {
-        return lastUpdated;
-    }
-    public void setLastUpdated(LocalDateTime lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
+    @NotNull(message = "Weekday daily increase is required")
+    @PositiveOrZero(message = "Weekday daily increase must be >= 0")
     private Double avgDailyIncreaseWeekday;
-    private Double avgDailyIncreaseWeekend;
-    private LocalDateTime lastUpdated;
 
-    
-}
+    @NotNull(message = "Weekend daily increase is required")
+    @PositiveOrZero(message = "Weekend daily increase must be >= 0")
+    private Double avgDailyIncreaseWeekend;
+
+    @Column(nullable = false)
+    private Timestamp lastUpdated;
+
+    // No-arg constructor
+    public UsagePatternModel() {}
+
+    // Parameterized constructor
+    public UsagePatternModel(Bin bin,
+                             Double avgDailyIncreaseWeekday,
+                             Double avgDailyIncreaseWeekend,
+                             Timestamp lastUpdated) {
+        this.bin = bin;
+        this.avgDailyIncreaseWeekday = avgDailyIncreaseWeekday;
+        this.avgDailyIncreaseWeekend = avgDailyIncreaseWeekend;
+        thi
