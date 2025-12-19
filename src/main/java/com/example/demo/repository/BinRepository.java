@@ -1,7 +1,7 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Bin;
-import com.example.demo.entity.Zone;
+import com.example.demo.model.Bin;
+import com.example.demo.model.Zone;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
