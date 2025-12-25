@@ -130,5 +130,12 @@ public class OverflowPrediction {
     public void setPredictedFullDate(LocalDate predictedFullDate) {
         this.predictedFullDate = java.sql.Date.valueOf(predictedFullDate);
     }
+    public void setGeneratedAt(java.time.LocalDateTime dt) {
+        this.generatedAt = java.sql.Timestamp.valueOf(dt);
+    }
+
+    public void setPredictedFullDate(java.time.LocalDate date) {
+        this.predictedFullDate = java.sql.Date.valueOf(date);
+    }
 
 }

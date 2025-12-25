@@ -174,5 +174,5 @@ public class Bin {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = Timestamp.valueOf(updatedAt);
     }
-
+    
 }

@@ -101,11 +101,11 @@ public class UsagePatternModel {
         this.lastUpdated = Timestamp.valueOf(lastUpdated);
     }
     public Double getAvgDailyIncreaseWeekday() {
-    return avgDailyIncreaseWeekday != null ? avgDailyIncreaseWeekday : 0.0;
-}
+        return avgDailyIncreaseWeekday != null ? avgDailyIncreaseWeekday : 0.0;
+    }
 
-public Double getAvgDailyIncreaseWeekend() {
-    return avgDailyIncreaseWeekend != null ? avgDailyIncreaseWeekend : 0.0;
-}
+    public Double getAvgDailyIncreaseWeekend() {
+        return avgDailyIncreaseWeekend != null ? avgDailyIncreaseWeekend : 0.0;
+    }
 
 }

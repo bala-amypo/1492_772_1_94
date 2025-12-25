@@ -29,7 +29,9 @@ public class BinServiceImpl implements BinService {
         if (bin.getCapacityLiters() <= 0) {
             throw new BadRequestException("capacity must be greater than 0");
         }
-
+        if (!Boolean.TRUE.equals(zone.getActive())) {
+            throw new BadRequestException("Zone is inactive");
+        }
         binRepository.findByIdentifier(bin.getIdentifier())
                 .ifPresent(b -> {
                     throw new BadRequestException("Bin identifier already exists");
