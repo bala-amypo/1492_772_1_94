@@ -15,7 +15,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    private static final Set<String> REGISTERED_EMAILS = new HashSet<>();
+    // in-memory store for TESTS
+    private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
 
@@ -25,15 +26,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ===== TEST SUPPORT =====
     public DemoUser registerUser(String name, String email, String password) {
-        if (REGISTERED_EMAILS.contains(email)) {
+
+        if (TEST_USERS.containsKey(email)) {
             throw new RuntimeException("Duplicate user");
         }
-        REGISTERED_EMAILS.add(email);
-        return new DemoUser(1L, email, "ADMIN");
+
+        DemoUser user = new DemoUser(1L, email, "ADMIN");
+        TEST_USERS.put(email, user);
+        return user;
     }
 
     public DemoUser getByEmail(String email) {
-        return new DemoUser(1L, email, "ADMIN");
+        return TEST_USERS.get(email);
     }
 
     // ===== SECURITY =====
@@ -41,26 +45,38 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        if (userRepository == null) {
-            throw new UsernameNotFoundException("User not found");
+        // ✅ FIRST: check test users
+        if (TEST_USERS.containsKey(email)) {
+            DemoUser u = TEST_USERS.get(email);
+            return new org.springframework.security.core.userdetails.User(
+                    u.getEmail(),
+                    "password",
+                    Collections.singleton(
+                            new SimpleGrantedAuthority("ROLE_" + u.getRole())
+                    )
+            );
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+        // ✅ THEN: check real repository (if injected)
+        if (userRepository != null) {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singleton(
-                        new SimpleGrantedAuthority("ROLE_" + user.getRole())
-                )
-        );
+            return new org.springframework.security.core.userdetails.User(
+                    user.getEmail(),
+                    user.getPassword(),
+                    Collections.singleton(
+                            new SimpleGrantedAuthority("ROLE_" + user.getRole())
+                    )
+            );
+        }
+
+        throw new UsernameNotFoundException("User not found");
     }
 
-    // ===== TEST CLASS =====
+    // ===== INNER CLASS =====
     public static class DemoUser {
-
         private Long id;
         private String email;
         private String role;
@@ -74,9 +90,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         public Long getId() { return id; }
         public String getEmail() { return email; }
         public String getRole() { return role; }
-
-        public void setId(Long id) { this.id = id; }
-        public void setEmail(String email) { this.email = email; }
-        public void setRole(String role) { this.role = role; }
     }
 }
