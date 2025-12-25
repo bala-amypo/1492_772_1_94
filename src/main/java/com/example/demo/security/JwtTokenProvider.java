@@ -9,7 +9,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // Secret key for signing JWTs (in production, store securely)
+    // Secret key for signing JWTs (store securely in production)
     private final String JWT_SECRET = "mySecretKey12345";
 
     // Token validity: 7 days
@@ -21,7 +21,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
 
         return Jwts.builder()
-                .setSubject(email)          // Store email as subject
+                .setSubject(email)          // email as subject
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
