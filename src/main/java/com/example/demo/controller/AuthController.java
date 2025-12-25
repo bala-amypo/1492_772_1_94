@@ -25,8 +25,13 @@ public class AuthController {
             @RequestParam @Email String email,
             @RequestParam @NotBlank String password) {
 
+        // 🔥 FIX: pass role as 4th argument
         User user = userService.registerUser(
-                fullName, email, password);
+                fullName,
+                email,
+                password,
+                "USER"
+        );
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -40,8 +45,7 @@ public class AuthController {
         User user = userService.getByEmail(email);
 
         if (!user.getPassword().equals(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         return ResponseEntity.ok(user);
