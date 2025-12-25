@@ -11,19 +11,29 @@ import java.util.Collections;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
+    // ✅ NO-ARG constructor (for tests)
+    public CustomUserDetailsService() {
+    }
+
+    // ✅ EXISTING constructor (Spring)
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    // ✅ METHOD EXPECTED BY TESTS
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + email));
     }
 
     @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with email: " + email));
+        User user = getByEmail(email);
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
@@ -34,3 +44,4 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 }
+
