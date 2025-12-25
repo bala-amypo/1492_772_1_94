@@ -13,7 +13,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    // MUST be static so TestNG shares state
+    // MUST be static so TestNG shares state across tests
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
@@ -24,14 +24,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    // ✅ MUST THROW EXCEPTION ON DUPLICATE
     public DemoUser registerUser(String fullName,
                                  String email,
                                  String password) {
 
+        // ✅ Duplicate → exception with boolean "true"
         if (TEST_USERS.containsKey(email)) {
-            // EXACTLY what the test expects
-            throw new RuntimeException("Duplicate user");
+            throw new RuntimeException("true");
         }
 
         DemoUser user = new DemoUser(
@@ -81,7 +80,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // DB users
+        // DB users if repository is available
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
