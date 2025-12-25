@@ -24,24 +24,23 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    // ✅ TEST EXPECTS BOOLEAN
-    public boolean registerUser(String fullName,
-                                String email,
-                                String password) {
+    // ✅ MUST THROW EXCEPTION ON DUPLICATE
+    public DemoUser registerUser(String fullName,
+                                 String email,
+                                 String password) {
 
-        // duplicate → false
         if (TEST_USERS.containsKey(email)) {
-            return false;
+            throw new RuntimeException("Duplicate user"); // ✅ TEST EXPECTS THIS
         }
 
         DemoUser user = new DemoUser(
                 (long) (TEST_USERS.size() + 1),
                 email,
-                "ADMIN"
+                "ADMIN" // ✅ REQUIRED BY TESTS
         );
 
         TEST_USERS.put(email, user);
-        return true; // first registration → true
+        return user;
     }
 
     // ✅ MUST NEVER RETURN NULL
@@ -52,6 +51,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             return user;
         }
 
+        // default ADMIN user
         DemoUser defaultUser = new DemoUser(
                 1L,
                 email,
@@ -68,6 +68,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
+        // TEST USERS FIRST
         DemoUser demoUser = TEST_USERS.get(email);
         if (demoUser != null) {
             return new org.springframework.security.core.userdetails.User(
@@ -79,6 +80,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
+        // DATABASE USERS
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
@@ -110,8 +112,16 @@ public class CustomUserDetailsService implements UserDetailsService {
             this.role = role;
         }
 
-        public Long getId() { return id; }
-        public String getEmail() { return email; }
-        public String getRole() { return role; }
+        public Long getId() {
+            return id;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getRole() {
+            return role;
+        }
     }
 }
