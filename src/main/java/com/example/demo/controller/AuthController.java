@@ -50,10 +50,10 @@ public class AuthController {
         }
 
         AuthResponse response = new AuthResponse(
-                user.getId(),        // Long id
+                String.valueOf(user.getId()), // Convert Long to String
                 user.getEmail(),
                 user.getRole(),
-                "dummy-jwt-token"   // placeholder JWT
+                "dummy-jwt-token"
         );
 
         return ResponseEntity.ok(response);

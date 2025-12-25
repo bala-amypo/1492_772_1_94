@@ -9,10 +9,9 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String SECRET_KEY = "mySecretKey123456"; // Change later
+    private final String SECRET_KEY = "mySecretKey123456";
     private final long EXPIRATION_TIME = 86400000; // 1 day
 
-    // Extract token from Authorization header
     public String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
@@ -21,7 +20,6 @@ public class JwtTokenProvider {
         return null;
     }
 
-    // Validate token
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
@@ -31,7 +29,6 @@ public class JwtTokenProvider {
         }
     }
 
-    // Extract username
     public String getUsernameFromToken(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
@@ -39,7 +36,6 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    // Generate token
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
