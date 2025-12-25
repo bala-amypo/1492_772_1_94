@@ -1,61 +1,31 @@
-package com.example.demo.controller;
+package com.example.demo.security;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.model.User;
-import com.example.demo.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.example.demo.repository.UserRepository;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+import java.util.Collections;
 
-    private final UserService userService;
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    // 🔹 REGISTER
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@Valid @RequestBody AuthRequest request) {
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        User user = userService.registerUser(
-                request.getEmail(),
-                request.getPassword(),
-                "USER" // default role
-        );
-
-        return new ResponseEntity<>(
-                new ApiResponse("User registered successfully", true, user),
-                HttpStatus.CREATED
-        );
-    }
-
-    // 🔹 LOGIN
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
-
-        User user = userService.getByEmail(request.getEmail());
-
-        if (user == null || !user.getPassword().equals(request.getPassword())) {
-            return new ResponseEntity<>(
-                    new ApiResponse("Invalid email or password", false, null),
-                    HttpStatus.UNAUTHORIZED
-            );
-        }
-
-        AuthResponse response = new AuthResponse(
-                user.getId(),        // Long id
+        return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
-                user.getRole(),
-                "dummy-jwt-token"   // placeholder JWT
+                user.getPassword(),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
-
-        return ResponseEntity.ok(response);
     }
 }
