@@ -20,23 +20,25 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // 🔹 USER REGISTRATION
+    // 🔹 REGISTER
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody AuthRequest request) {
 
+        // Added default role "USER" for registration
         User user = userService.registerUser(
-                request.getFullName(),
                 request.getEmail(),
-                request.getPassword()
+                request.getPassword(),
+                "USER"
         );
 
+        // ApiResponse expects String success value
         return new ResponseEntity<>(
-                new ApiResponse("User registered successfully!", true),
+                new ApiResponse("User registered successfully", "true", user),
                 HttpStatus.CREATED
         );
     }
 
-    // 🔹 USER LOGIN
+    // 🔹 LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
 
@@ -44,15 +46,17 @@ public class AuthController {
 
         if (user == null || !user.getPassword().equals(request.getPassword())) {
             return new ResponseEntity<>(
-                    new ApiResponse("Invalid email or password", false),
+                    new ApiResponse("Invalid email or password", "false", null),
                     HttpStatus.UNAUTHORIZED
             );
         }
 
+        // Convert Long id to String
         AuthResponse response = new AuthResponse(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail()
+                String.valueOf(user.getId()),
+                user.getEmail(),
+                user.getRole(),
+                "dummy-jwt-token" // placeholder for JWT token
         );
 
         return ResponseEntity.ok(response);
