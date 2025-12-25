@@ -1,65 +1,84 @@
-package com.example.demo.security;
+package com.example.demo.model;
 
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.stereotype.Service;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.Collections;
+@Entity
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = "email")
+)
+public class User {
 
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private UserRepository userRepository;
+    @NotBlank
+    private String fullName;
 
-    // ✅ Required for hidden tests
-    public CustomUserDetailsService() {
+    @Email
+    @NotBlank
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @NotBlank
+    private String password;
+
+    @NotBlank
+    private String role;
+
+    // No-arg constructor
+    public User() {}
+
+    // Parameterized constructor
+    public User(String fullName, String email, String password, String role) {
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
     }
 
-    // ✅ Used by Spring
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    // 🔹 GETTERS & SETTERS 🔹
+
+    public Long getId() {
+        return id;
     }
 
-    // ✅ Required by hidden tests
-    public User registerUser(String name, String email, String password) {
-        User user = new User();
-        user.setFullName(name);   // ✅ FIXED
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setRole("USER");
-        return user;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    // ✅ Required by hidden tests
-    public User getByEmail(String email) {
-        if (userRepository == null) {
-            User u = new User();
-            u.setEmail(email);
-            u.setPassword("test");
-            u.setRole("USER");
-            u.setFullName("Test User");
-            return u;
-        }
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + email));
+    public String getFullName() {
+        return fullName;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-        User user = getByEmail(email);
+    public String getEmail() {
+        return email;
+    }
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singleton(
-                        new SimpleGrantedAuthority("ROLE_" + user.getRole())
-                )
-        );
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+ 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+ 
+    public String getRole() {
+        return role;
+    }
+ 
+    public void setRole(String role) {
+        this.role = role;
     }
 }
