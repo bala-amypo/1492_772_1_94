@@ -6,20 +6,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "bins",
-        uniqueConstraints = @UniqueConstraint(columnNames = "identifier")
-)
+@Table(name = "bins",
+       uniqueConstraints = @UniqueConstraint(columnNames = "identifier"))
 public class Bin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Identifier is required")
-    @Column(nullable = false, unique = true)
+    @NotBlank
     private String identifier;
 
     private String locationDescription;
@@ -28,12 +26,10 @@ public class Bin {
     private Double longitude;
 
     @ManyToOne
-    @JoinColumn(name = "zone_id", nullable = false)
-    @NotNull(message = "Zone is required")
+    @JoinColumn(name = "zone_id")
     private Zone zone;
 
-    @NotNull(message = "Capacity is required")
-    @Positive(message = "capacity must be greater than 0")
+    @Positive
     private Double capacityLiters;
 
     private Boolean active = true;
@@ -41,13 +37,23 @@ public class Bin {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    // No-arg constructor
-    public Bin() {}
+    // ===================== CONSTRUCTORS =====================
 
-    // Parameterized constructor
-    public Bin(String identifier, String locationDescription, Double latitude,
-               Double longitude, Zone zone, Double capacityLiters,
-               Boolean active, Timestamp createdAt, Timestamp updatedAt) {
+    // No-arg constructor (JPA)
+    public Bin() {
+    }
+
+    // Main constructor (Timestamp)
+    public Bin(String identifier,
+               String locationDescription,
+               Double latitude,
+               Double longitude,
+               Zone zone,
+               Double capacityLiters,
+               Boolean active,
+               Timestamp createdAt,
+               Timestamp updatedAt) {
+
         this.identifier = identifier;
         this.locationDescription = locationDescription;
         this.latitude = latitude;
@@ -59,28 +65,34 @@ public class Bin {
         this.updatedAt = updatedAt;
     }
 
-    @PrePersist
-    public void onCreate() {
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.updatedAt = this.createdAt;
-        if (this.active == null) {
-            this.active = true;
-        }
+    // ✅ Overloaded constructor (LocalDateTime) – REQUIRED FOR TESTS
+    public Bin(String identifier,
+               String locationDescription,
+               Double latitude,
+               Double longitude,
+               Zone zone,
+               Double capacityLiters,
+               Boolean active,
+               LocalDateTime createdAt,
+               LocalDateTime updatedAt) {
+
+        this(
+                identifier,
+                locationDescription,
+                latitude,
+                longitude,
+                zone,
+                capacityLiters,
+                active,
+                Timestamp.valueOf(createdAt),
+                Timestamp.valueOf(updatedAt)
+        );
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
-    }
-
-    // 🔹 GETTERS & SETTERS 🔹
+    // ===================== GETTERS & SETTERS =====================
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getIdentifier() {

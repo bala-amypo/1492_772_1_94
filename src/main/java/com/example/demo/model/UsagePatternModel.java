@@ -2,8 +2,10 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usage_pattern_models")
@@ -13,43 +15,54 @@ public class UsagePatternModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "bin_id")
+    @ManyToOne
+    @JoinColumn(name = "bin_id", nullable = false)
+    @NotNull
     private Bin bin;
 
-    @NotNull
+    @PositiveOrZero
     private Double avgDailyIncreaseWeekday;
 
-    @NotNull
+    @PositiveOrZero
     private Double avgDailyIncreaseWeekend;
 
     private Timestamp lastUpdated;
 
-    // ✅ No-arg constructor
+    // ===================== CONSTRUCTORS =====================
+
+    // No-arg constructor (JPA)
     public UsagePatternModel() {
     }
 
-    // ✅ Parameterized constructor
-    public UsagePatternModel(
-            Bin bin,
-            Double avgDailyIncreaseWeekday,
-            Double avgDailyIncreaseWeekend,
-            Timestamp lastUpdated) {
-
+    // Main constructor (Timestamp)
+    public UsagePatternModel(Bin bin,
+                             Double avgDailyIncreaseWeekday,
+                             Double avgDailyIncreaseWeekend,
+                             Timestamp lastUpdated) {
         this.bin = bin;
         this.avgDailyIncreaseWeekday = avgDailyIncreaseWeekday;
         this.avgDailyIncreaseWeekend = avgDailyIncreaseWeekend;
         this.lastUpdated = lastUpdated;
     }
 
-    // 🔹 GETTERS & SETTERS 🔹
+    // ✅ Overloaded constructor (LocalDateTime) – REQUIRED FOR TESTS
+    public UsagePatternModel(Bin bin,
+                             Double avgDailyIncreaseWeekday,
+                             Double avgDailyIncreaseWeekend,
+                             LocalDateTime lastUpdated) {
+
+        this(
+                bin,
+                avgDailyIncreaseWeekday,
+                avgDailyIncreaseWeekend,
+                Timestamp.valueOf(lastUpdated)
+        );
+    }
+
+    // ===================== GETTERS & SETTERS =====================
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Bin getBin() {

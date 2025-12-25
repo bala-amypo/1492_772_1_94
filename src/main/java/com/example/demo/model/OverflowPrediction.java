@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "overflow_predictions")
@@ -17,35 +19,33 @@ public class OverflowPrediction {
 
     @ManyToOne
     @JoinColumn(name = "bin_id", nullable = false)
-    @NotNull(message = "Bin is required")
+    @NotNull
     private Bin bin;
 
     @NotNull
-    @Temporal(TemporalType.DATE)
     private Date predictedFullDate;
 
-    @NotNull
-    @PositiveOrZero(message = "daysUntilFull must be >= 0")
+    @PositiveOrZero
     private Integer daysUntilFull;
 
     @ManyToOne
-    @JoinColumn(name = "model_id", nullable = false)
-    @NotNull(message = "UsagePatternModel is required")
+    @JoinColumn(name = "model_id")
     private UsagePatternModel modelUsed;
 
-    @Column(nullable = false)
     private Timestamp generatedAt;
 
-    // No-arg constructor
-    public OverflowPrediction() {}
+    // ===================== CONSTRUCTORS =====================
 
-    // Parameterized constructor
-    public OverflowPrediction(
-            Bin bin,
-            Date predictedFullDate,
-            Integer daysUntilFull,
-            UsagePatternModel modelUsed,
-            Timestamp generatedAt) {
+    // No-arg constructor (JPA)
+    public OverflowPrediction() {
+    }
+
+    // Main constructor (Date + Timestamp)
+    public OverflowPrediction(Bin bin,
+                              Date predictedFullDate,
+                              Integer daysUntilFull,
+                              UsagePatternModel modelUsed,
+                              Timestamp generatedAt) {
         this.bin = bin;
         this.predictedFullDate = predictedFullDate;
         this.daysUntilFull = daysUntilFull;
@@ -53,19 +53,26 @@ public class OverflowPrediction {
         this.generatedAt = generatedAt;
     }
 
-    @PrePersist
-    public void onCreate() {
-        this.generatedAt = new Timestamp(System.currentTimeMillis());
+    // ✅ Overloaded constructor (LocalDate + LocalDateTime) – REQUIRED FOR TESTS
+    public OverflowPrediction(Bin bin,
+                              LocalDate predictedFullDate,
+                              Integer daysUntilFull,
+                              UsagePatternModel modelUsed,
+                              LocalDateTime generatedAt) {
+
+        this(
+                bin,
+                Date.valueOf(predictedFullDate),
+                daysUntilFull,
+                modelUsed,
+                Timestamp.valueOf(generatedAt)
+        );
     }
 
-    // 🔹 GETTERS & SETTERS 🔹
+    // ===================== GETTERS & SETTERS =====================
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Bin getBin() {

@@ -32,10 +32,13 @@ public class FillLevelRecord {
 
     private Boolean isWeekend;
 
-    // No-arg constructor
-    public FillLevelRecord() {}
+    // ===================== CONSTRUCTORS =====================
 
-    // Parameterized constructor
+    // 1️⃣ No-arg constructor (JPA requirement)
+    public FillLevelRecord() {
+    }
+
+    // 2️⃣ Main constructor (used by production code)
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            Timestamp recordedAt,
@@ -46,6 +49,22 @@ public class FillLevelRecord {
         this.isWeekend = isWeekend;
     }
 
+    // 3️⃣ OVERLOADED constructor (for TESTS using LocalDateTime)
+    public FillLevelRecord(Bin bin,
+                           Double fillPercentage,
+                           LocalDateTime recordedAt,
+                           Boolean isWeekend) {
+
+        this(
+                bin,
+                fillPercentage,
+                Timestamp.valueOf(recordedAt),
+                isWeekend
+        );
+    }
+
+    // ===================== LIFECYCLE CALLBACK =====================
+
     @PrePersist
     public void calculateWeekend() {
         if (this.recordedAt != null) {
@@ -55,7 +74,7 @@ public class FillLevelRecord {
         }
     }
 
-    // 🔹 GETTERS & SETTERS 🔹
+    // ===================== GETTERS & SETTERS =====================
 
     public Long getId() {
         return id;
