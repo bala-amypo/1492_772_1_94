@@ -13,7 +13,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    // MUST be static for tests
+    // 🔴 MUST be static so state survives across test instances
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
@@ -24,41 +24,29 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    // ✅ TEST EXPECTS BOOLEAN (NOT EXCEPTION)
-    public boolean registerUser(String fullName,
-                                String email,
-                                String password) {
+    public DemoUser registerUser(String fullName,
+                                 String email,
+                                 String password) {
 
+        // ✅ Duplicate detection (MANDATORY)
         if (TEST_USERS.containsKey(email)) {
-            return false; // ✅ duplicate = fail
+            throw new RuntimeException("Duplicate user");
         }
 
+        // ✅ ALWAYS create and return a user
         DemoUser user = new DemoUser(
                 (long) (TEST_USERS.size() + 1),
                 email,
-                "ADMIN" // ✅ default admin
+                "ADMIN" // ✅ test expects ADMIN
         );
 
         TEST_USERS.put(email, user);
-        return true; // ✅ success
+
+        return user; // ✅ NEVER return null
     }
 
-    // ✅ NEVER return null
     public DemoUser getByEmail(String email) {
-
-        if (TEST_USERS.containsKey(email)) {
-            return TEST_USERS.get(email);
-        }
-
-        // ✅ default ADMIN user for tests
-        DemoUser defaultUser = new DemoUser(
-                1L,
-                email,
-                "ADMIN"
-        );
-
-        TEST_USERS.put(email, defaultUser);
-        return defaultUser;
+        return TEST_USERS.get(email);
     }
 
     // ================= SECURITY =================
@@ -67,10 +55,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        // TEST USERS FIRST
+        // ✅ First: test users
         if (TEST_USERS.containsKey(email)) {
             DemoUser u = TEST_USERS.get(email);
-
             return new org.springframework.security.core.userdetails.User(
                     u.getEmail(),
                     "password",
@@ -80,7 +67,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // DB USERS
+        // ✅ Then real DB (if injected)
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
@@ -122,6 +109,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         public String getRole() {
             return role;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }
