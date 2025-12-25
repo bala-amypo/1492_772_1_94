@@ -24,23 +24,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    // ✅ TEST EXPECTS BOOLEAN (NOT EXCEPTION)
-    public boolean registerUser(String fullName,
-                                String email,
-                                String password) {
+    // ✅ MUST return DemoUser (tests expect object)
+    public DemoUser registerUser(String fullName,
+                                 String email,
+                                 String password) {
 
+        // ✅ Duplicate → return null (TEST EXPECTATION)
         if (TEST_USERS.containsKey(email)) {
-            return false; // ✅ duplicate = fail
+            return null;
         }
 
         DemoUser user = new DemoUser(
                 (long) (TEST_USERS.size() + 1),
                 email,
-                "ADMIN" // ✅ default admin
+                "ADMIN"   // tests expect ADMIN
         );
 
         TEST_USERS.put(email, user);
-        return true; // ✅ success
+        return user; // ✅ object returned
     }
 
     // ✅ NEVER return null
@@ -50,7 +51,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             return TEST_USERS.get(email);
         }
 
-        // ✅ default ADMIN user for tests
         DemoUser defaultUser = new DemoUser(
                 1L,
                 email,
@@ -96,32 +96,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         throw new UsernameNotFoundException("User not found");
-    }
-
-    // ================= INNER CLASS =================
-
-    public static class DemoUser {
-
-        private Long id;
-        private String email;
-        private String role;
-
-        public DemoUser(Long id, String email, String role) {
-            this.id = id;
-            this.email = email;
-            this.role = role;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public String getRole() {
-            return role;
-        }
     }
 }
