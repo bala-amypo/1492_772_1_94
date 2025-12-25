@@ -122,4 +122,13 @@ public class OverflowPrediction {
     public void setGeneratedAt(Timestamp generatedAt) {
         this.generatedAt = generatedAt;
     }
+    // ✅ ADD BELOW existing setters
+    public void setGeneratedAt(LocalDateTime generatedAt) {
+        this.generatedAt = Timestamp.valueOf(generatedAt);
+    }
+
+    public void setPredictedFullDate(LocalDate predictedFullDate) {
+        this.predictedFullDate = java.sql.Date.valueOf(predictedFullDate);
+    }
+
 }

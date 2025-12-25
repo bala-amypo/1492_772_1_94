@@ -118,4 +118,9 @@ public class FillLevelRecord {
     public void setIsWeekend(Boolean isWeekend) {
         this.isWeekend = isWeekend;
     }
+    // ✅ ADD BELOW existing setters
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = Timestamp.valueOf(recordedAt);
+    }
+
 }

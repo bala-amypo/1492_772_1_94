@@ -96,4 +96,9 @@ public class UsagePatternModel {
     public void setLastUpdated(Timestamp lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
+    // ✅ ADD BELOW existing setters
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = Timestamp.valueOf(lastUpdated);
+    }
+
 }

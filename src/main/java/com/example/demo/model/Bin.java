@@ -166,4 +166,13 @@ public class Bin {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
+    // ✅ ADD BELOW existing setters
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = Timestamp.valueOf(createdAt);
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = Timestamp.valueOf(updatedAt);
+    }
+
 }
