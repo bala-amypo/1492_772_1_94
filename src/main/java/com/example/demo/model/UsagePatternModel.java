@@ -100,5 +100,12 @@ public class UsagePatternModel {
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = Timestamp.valueOf(lastUpdated);
     }
+    public Double getAvgDailyIncreaseWeekday() {
+    return avgDailyIncreaseWeekday != null ? avgDailyIncreaseWeekday : 0.0;
+}
+
+public Double getAvgDailyIncreaseWeekend() {
+    return avgDailyIncreaseWeekend != null ? avgDailyIncreaseWeekend : 0.0;
+}
 
 }

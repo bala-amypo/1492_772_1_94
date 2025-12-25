@@ -127,4 +127,5 @@ public class FillLevelRecord {
         return isWeekend != null ? isWeekend : false;
     }
 
+    
 }
