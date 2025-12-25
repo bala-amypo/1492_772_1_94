@@ -16,8 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // MUST be static so TestNG shares state
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
-    public CustomUserDetailsService() {
-    }
+    public CustomUserDetailsService() {}
 
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -25,24 +24,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    // ✅ MUST RETURN DemoUser OR NULL (NO BOOLEAN, NO EXCEPTION)
+    // ✅ MUST THROW EXCEPTION ON DUPLICATE
     public DemoUser registerUser(String fullName,
                                  String email,
                                  String password) {
 
-        // Duplicate → return null (TEST EXPECTS THIS)
         if (TEST_USERS.containsKey(email)) {
-            return null;
+            // ✅ THIS IS EXACTLY WHAT THE TEST EXPECTS
+            throw new RuntimeException("Duplicate user");
         }
 
         DemoUser user = new DemoUser(
                 (long) (TEST_USERS.size() + 1),
                 email,
-                "ADMIN" // tests expect ADMIN
+                "ADMIN"   // tests expect ADMIN
         );
 
         TEST_USERS.put(email, user);
-        return user; // first time → non-null
+        return user;
     }
 
     // ✅ MUST NEVER RETURN NULL
@@ -53,7 +52,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             return user;
         }
 
-        // Default ADMIN user if missing
+        // default ADMIN user
         DemoUser defaultUser = new DemoUser(
                 1L,
                 email,
@@ -82,7 +81,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // DB users if repository exists
+        // DB users
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
@@ -114,16 +113,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             this.role = role;
         }
 
-        public Long getId() {
-            return id;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public String getRole() {
-            return role;
-        }
+        public Long getId() { return id; }
+        public String getEmail() { return email; }
+        public String getRole() { return role; }
     }
 }
