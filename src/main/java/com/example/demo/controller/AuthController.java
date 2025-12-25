@@ -24,16 +24,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody AuthRequest request) {
 
-        // Added default role "USER" for registration
         User user = userService.registerUser(
                 request.getEmail(),
                 request.getPassword(),
-                "USER"
+                "USER" // default role
         );
 
-        // ApiResponse expects String success value
         return new ResponseEntity<>(
-                new ApiResponse("User registered successfully", "true", user),
+                new ApiResponse(true, "User registered successfully", user),
                 HttpStatus.CREATED
         );
     }
@@ -46,17 +44,16 @@ public class AuthController {
 
         if (user == null || !user.getPassword().equals(request.getPassword())) {
             return new ResponseEntity<>(
-                    new ApiResponse("Invalid email or password", "false", null),
+                    new ApiResponse(false, "Invalid email or password", null),
                     HttpStatus.UNAUTHORIZED
             );
         }
 
-        // Convert Long id to String
         AuthResponse response = new AuthResponse(
-                String.valueOf(user.getId()),
+                user.getId(),        // Long id
                 user.getEmail(),
                 user.getRole(),
-                "dummy-jwt-token" // placeholder for JWT token
+                "dummy-jwt-token"   // placeholder JWT
         );
 
         return ResponseEntity.ok(response);
