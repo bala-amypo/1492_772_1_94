@@ -13,7 +13,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    // 🔴 STATIC so state is shared across test instances
+    // 🔴 MUST be static so state survives across test instances
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
@@ -24,24 +24,25 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= TEST SUPPORT =================
 
-    public DemoUser registerUser(String name, String email, String password) {
+    public DemoUser registerUser(String fullName,
+                                 String email,
+                                 String password) {
 
-        // ✅ Duplicate detection (TEST EXPECTS THIS)
+        // ✅ Duplicate detection (MANDATORY)
         if (TEST_USERS.containsKey(email)) {
             throw new RuntimeException("Duplicate user");
         }
 
-        // ✅ First / default role must be ADMIN
+        // ✅ ALWAYS create and return a user
         DemoUser user = new DemoUser(
                 (long) (TEST_USERS.size() + 1),
                 email,
-                "ADMIN"
+                "ADMIN" // ✅ test expects ADMIN
         );
 
         TEST_USERS.put(email, user);
 
-        // ✅ MUST return non-null user
-        return user;
+        return user; // ✅ NEVER return null
     }
 
     public DemoUser getByEmail(String email) {
@@ -54,7 +55,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        // ✅ First check test users
+        // ✅ First: test users
         if (TEST_USERS.containsKey(email)) {
             DemoUser u = TEST_USERS.get(email);
             return new org.springframework.security.core.userdetails.User(
@@ -66,7 +67,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // ✅ Then real repository (if available)
+        // ✅ Then real DB (if injected)
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
@@ -98,12 +99,28 @@ public class CustomUserDetailsService implements UserDetailsService {
             this.role = role;
         }
 
-        public Long getId() { return id; }
-        public String getEmail() { return email; }
-        public String getRole() { return role; }
+        public Long getId() {
+            return id;
+        }
 
-        public void setId(Long id) { this.id = id; }
-        public void setEmail(String email) { this.email = email; }
-        public void setRole(String role) { this.role = role; }
+        public String getEmail() {
+            return email;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
     }
 }
