@@ -7,10 +7,8 @@ import com.example.demo.repository.*;
 import com.example.demo.service.OverflowPredictionService;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -84,21 +82,18 @@ public class OverflowPredictionServiceImpl
             throw new BadRequestException("daysUntilFull must be >= 0");
         }
 
-        LocalDate predictedDate =
+        // ✅ USE LocalDate (matches entity constructor)
+        LocalDate predictedFullDate =
                 LocalDate.now().plusDays(daysUntilFull);
-
-        Date predictedFullDate =
-                Date.from(predictedDate
-                        .atStartOfDay(ZoneId.systemDefault())
-                        .toInstant());
 
         OverflowPrediction prediction =
                 new OverflowPrediction(
                         bin,
-                        predictedFullDate,
+                        predictedFullDate,          // ✅ LocalDate
                         daysUntilFull,
                         model,
-                        new Timestamp(System.currentTimeMillis()));
+                        LocalDateTime.now()         // ✅ LocalDateTime
+                );
 
         return predictionRepository.save(prediction);
     }
