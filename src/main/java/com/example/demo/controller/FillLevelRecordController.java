@@ -1,3 +1,14 @@
+package com.example.demo.controller;
+
+import com.example.demo.dto.FillLevelRecordDTO;
+import com.example.demo.service.FillLevelRecordService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/fill-records")
 public class FillLevelRecordController {
@@ -9,8 +20,7 @@ public class FillLevelRecordController {
     }
 
     @PostMapping
-    public ResponseEntity<FillLevelRecordDTO> createRecord(
-            @Valid @RequestBody FillLevelRecordDTO dto) {
+    public ResponseEntity<FillLevelRecordDTO> createRecord(@Valid @RequestBody FillLevelRecordDTO dto) {
         return new ResponseEntity<>(recordService.createRecord(dto), HttpStatus.CREATED);
     }
 

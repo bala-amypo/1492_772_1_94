@@ -1,3 +1,14 @@
+package com.example.demo.controller;
+
+import com.example.demo.model.Zone;
+import com.example.demo.service.ZoneService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/zones")
 public class ZoneController {
@@ -9,29 +20,42 @@ public class ZoneController {
     }
 
     @PostMapping
-    public ResponseEntity<ZoneDTO> createZone(@Valid @RequestBody ZoneDTO zoneDTO) {
-        ZoneDTO created = zoneService.createZone(zoneDTO);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<Zone> createZone(
+            @Valid @RequestBody Zone zone) {
+
+        return new ResponseEntity<>(
+                zoneService.createZone(zone),
+                HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ZoneDTO> updateZone(
-            @PathVariable Long id, @Valid @RequestBody ZoneDTO zoneDTO) {
-        return ResponseEntity.ok(zoneService.updateZone(id, zoneDTO));
+    public ResponseEntity<Zone> updateZone(
+            @PathVariable Long id,
+            @Valid @RequestBody Zone zone) {
+
+        return ResponseEntity.ok(
+                zoneService.updateZone(id, zone));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ZoneDTO> getZoneById(@PathVariable Long id) {
-        return ResponseEntity.ok(zoneService.getZoneById(id));
+    public ResponseEntity<Zone> getZoneById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                zoneService.getZoneById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<ZoneDTO>> getAllZones() {
-        return ResponseEntity.ok(zoneService.getAllZones());
+    public ResponseEntity<List<Zone>> getAllZones() {
+
+        return ResponseEntity.ok(
+                zoneService.getAllZones());
     }
 
     @PutMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateZone(@PathVariable Long id) {
+    public ResponseEntity<Void> deactivateZone(
+            @PathVariable Long id) {
+
         zoneService.deactivateZone(id);
         return ResponseEntity.noContent().build();
     }

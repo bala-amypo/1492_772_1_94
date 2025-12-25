@@ -1,3 +1,13 @@
+package com.example.demo.controller;
+
+import com.example.demo.dto.OverflowPredictionDTO;
+import com.example.demo.service.OverflowPredictionService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/predictions")
 public class OverflowPredictionController {
@@ -24,8 +34,7 @@ public class OverflowPredictionController {
     }
 
     @GetMapping("/zone/{zoneId}/latest")
-    public ResponseEntity<List<OverflowPredictionDTO>> getLatestPredictionsForZone(
-            @PathVariable Long zoneId) {
+    public ResponseEntity<List<OverflowPredictionDTO>> getLatestPredictionsForZone(@PathVariable Long zoneId) {
         return ResponseEntity.ok(predictionService.getLatestPredictionsForZone(zoneId));
     }
 }
