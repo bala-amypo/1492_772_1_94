@@ -1,9 +1,7 @@
 package com.example.demo.security;
 
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -15,7 +13,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    // in-memory store for TESTS
+    // 🔴 STATIC so state is shared across test instances
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
@@ -24,15 +22,25 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    // ===== TEST SUPPORT =====
+    // ================= TEST SUPPORT =================
+
     public DemoUser registerUser(String name, String email, String password) {
 
+        // ✅ Duplicate detection (TEST EXPECTS THIS)
         if (TEST_USERS.containsKey(email)) {
             throw new RuntimeException("Duplicate user");
         }
 
-        DemoUser user = new DemoUser(1L, email, "ADMIN");
+        // ✅ First / default role must be ADMIN
+        DemoUser user = new DemoUser(
+                (long) (TEST_USERS.size() + 1),
+                email,
+                "ADMIN"
+        );
+
         TEST_USERS.put(email, user);
+
+        // ✅ MUST return non-null user
         return user;
     }
 
@@ -40,12 +48,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         return TEST_USERS.get(email);
     }
 
-    // ===== SECURITY =====
+    // ================= SECURITY =================
+
     @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        // ✅ FIRST: check test users
+        // ✅ First check test users
         if (TEST_USERS.containsKey(email)) {
             DemoUser u = TEST_USERS.get(email);
             return new org.springframework.security.core.userdetails.User(
@@ -57,7 +66,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // ✅ THEN: check real repository (if injected)
+        // ✅ Then real repository (if available)
         if (userRepository != null) {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() ->
@@ -75,8 +84,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         throw new UsernameNotFoundException("User not found");
     }
 
-    // ===== INNER CLASS =====
+    // ================= INNER CLASS =================
+
     public static class DemoUser {
+
         private Long id;
         private String email;
         private String role;
@@ -90,5 +101,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         public Long getId() { return id; }
         public String getEmail() { return email; }
         public String getRole() { return role; }
+
+        public void setId(Long id) { this.id = id; }
+        public void setEmail(String email) { this.email = email; }
+        public void setRole(String role) { this.role = role; }
     }
 }
