@@ -22,15 +22,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(
             JwtTokenProvider jwtTokenProvider,
             UserDetailsService userDetailsService) {
-
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
-    // ✅ IMPORTANT: Do NOT apply JWT filter on auth endpoints
+    // 🔥 THIS IS THE FIX (WITHOUT THIS → 403)
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().startsWith("/auth/");
+        String path = request.getServletPath();
+        return path.equals("/auth/login")
+                || path.equals("/auth/register");
     }
 
     @Override

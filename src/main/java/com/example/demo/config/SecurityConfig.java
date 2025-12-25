@@ -48,7 +48,6 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
             );
 
-        // 🔥 ADD JWT FILTER
         http.addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
