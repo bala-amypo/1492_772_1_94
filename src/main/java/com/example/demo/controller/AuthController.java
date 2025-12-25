@@ -1,7 +1,9 @@
 package com.example.demo.controller;
-import com.example.demo.dto.UserDTO;
-import com.example.demo.dto.UserLoginDTO;
-import com.example.demo.dto.UserRegisterDTO;
+
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.ApiResponse;
+import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,14 +20,41 @@ public class AuthController {
         this.userService = userService;
     }
 
+    // 🔹 USER REGISTRATION
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(@Valid @RequestBody UserRegisterDTO dto) {
-        UserDTO created = userService.registerUser(dto);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody AuthRequest request) {
+
+        User user = userService.registerUser(
+                request.getFullName(),
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        return new ResponseEntity<>(
+                new ApiResponse("User registered successfully!", true),
+                HttpStatus.CREATED
+        );
     }
 
+    // 🔹 USER LOGIN
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@Valid @RequestBody UserLoginDTO dto) {
-        return ResponseEntity.ok(userService.login(dto));
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
+
+        User user = userService.getByEmail(request.getEmail());
+
+        if (user == null || !user.getPassword().equals(request.getPassword())) {
+            return new ResponseEntity<>(
+                    new ApiResponse("Invalid email or password", false),
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        AuthResponse response = new AuthResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
