@@ -25,6 +25,7 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    // REGISTER NEW USER
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestParam String fullName,
                                                 @RequestParam String email,
@@ -38,16 +39,24 @@ public class AuthController {
         }
     }
 
+    // LOGIN USER
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@Valid @RequestBody AuthRequest authRequest) {
         try {
+            // Fetch user by email
             User user = userService.getByEmail(authRequest.getEmail());
+
+            // Verify password
             if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
                 return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid credentials"));
             }
 
+            // Generate JWT token
             String token = jwtTokenProvider.generateToken(user.getEmail());
+
+            // Return AuthResponse with Long userId
             AuthResponse authResponse = new AuthResponse(token, user.getId(), user.getEmail(), user.getRole());
+
             return ResponseEntity.ok(new ApiResponse(true, "Login successful", authResponse));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage()));
