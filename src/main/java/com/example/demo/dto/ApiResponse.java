@@ -1,30 +1,30 @@
 package com.example.demo.dto;
 
-public class ApiResponse {
+public class ApiResponse<T> {
+
     private boolean success;
     private String message;
-    private Object data;
+    private T data;
 
-    public ApiResponse() {}
-
-    public ApiResponse(boolean success, String message) {
-        this.success = success;
-        this.message = message;
-    }
-
-    public ApiResponse(boolean success, String message, Object data) {
+    public ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
     }
 
-    // Getters and setters
-    public boolean isSuccess() { return success; }
-    public void setSuccess(boolean success) { this.success = success; }
+    public ApiResponse(boolean success, String message) {
+        this(success, message, null);
+    }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public boolean isSuccess() {
+        return success;
+    }
 
-    public Object getData() { return data; }
-    public void setData(Object data) { this.data = data; }
+    public String getMessage() {
+        return message;
+    }
+
+    public T getData() {
+        return data;
+    }
 }

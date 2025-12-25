@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.*;
 import com.example.demo.model.User;
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.UserService;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,41 +15,61 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService,
+                          AuthenticationManager authenticationManager,
+                          JwtTokenProvider jwtTokenProvider,
+                          PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // ✅ REGISTER
     @PostMapping("/register")
-    public ResponseEntity<User> register(
-            @RequestParam @NotBlank String fullName,
-            @RequestParam @Email String email,
-            @RequestParam @NotBlank String password) {
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
 
-        // 🔥 FIX: pass role as 4th argument
-        User user = userService.registerUser(
-                fullName,
-                email,
-                password,
-                "USER"
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User saved = userService.registerUser(
+                user.getFullName(),
+                user.getEmail(),
+                user.getPassword()
         );
 
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "User registered successfully", saved)
+        );
     }
 
-    // ✅ LOGIN (simple validation, NO JWT)
     @PostMapping("/login")
-    public ResponseEntity<User> login(
-            @RequestParam @Email String email,
-            @RequestParam @NotBlank String password) {
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody AuthRequest request) {
 
-        User user = userService.getByEmail(email);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-        if (!user.getPassword().equals(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        User user = userService.getByEmail(request.getEmail());
 
-        return ResponseEntity.ok(user);
+        String token = jwtTokenProvider.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
+
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        token,
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole()
+                )
+        );
     }
 }
