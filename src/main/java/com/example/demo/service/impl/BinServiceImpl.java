@@ -29,18 +29,27 @@ public class BinServiceImpl implements BinService {
         if (bin.getCapacityLiters() <= 0) {
             throw new BadRequestException("capacity must be greater than 0");
         }
-        if (!Boolean.TRUE.equals(zone.getActive())) {
-            throw new BadRequestException("Zone is inactive");
-        }
+
         binRepository.findByIdentifier(bin.getIdentifier())
                 .ifPresent(b -> {
                     throw new BadRequestException("Bin identifier already exists");
                 });
 
+        if (bin.getZone() == null || bin.getZone().getId() == null) {
+            throw new BadRequestException("Zone is required");
+        }
+
         Long zoneId = bin.getZone().getId();
+
+        // ✅ FIRST fetch zone
         Zone zone = zoneRepository.findById(zoneId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Zone not found with id " + zoneId));
+
+        // ✅ THEN check active
+        if (!Boolean.TRUE.equals(zone.getActive())) {
+            throw new BadRequestException("Zone is inactive");
+        }
 
         bin.setZone(zone);
         bin.setActive(true);
