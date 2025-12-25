@@ -30,9 +30,10 @@ public class FillLevelRecord {
     @NotNull
     private Timestamp recordedAt;
 
-    private Boolean isWeekend;
+    // ✅ ONLY ONE FIELD
+    private Boolean isWeekend = false;
 
-    // ===================== CONSTRUCTORS =====================
+    // ===== CONSTRUCTORS =====
 
     public FillLevelRecord() {}
 
@@ -46,42 +47,33 @@ public class FillLevelRecord {
         this.isWeekend = isWeekend;
     }
 
-    // For LocalDateTime + isWeekend
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            LocalDateTime recordedAt,
                            Boolean isWeekend) {
-        this(
-                bin,
-                fillPercentage,
-                Timestamp.valueOf(recordedAt),
-                isWeekend
-        );
+        this(bin, fillPercentage,
+             Timestamp.valueOf(recordedAt),
+             isWeekend);
     }
 
-    // For tests (LocalDateTime only)
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            LocalDateTime recordedAt) {
-        this(
-                bin,
-                fillPercentage,
-                Timestamp.valueOf(recordedAt),
-                false
-        );
+        this(bin, fillPercentage,
+             Timestamp.valueOf(recordedAt),
+             false);
     }
 
     @PrePersist
     public void calculateWeekend() {
         if (recordedAt != null) {
-            DayOfWeek day =
-                    recordedAt.toLocalDateTime().getDayOfWeek();
+            DayOfWeek day = recordedAt.toLocalDateTime().getDayOfWeek();
             this.isWeekend =
                     (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY);
         }
     }
 
-    // ===================== GETTERS & SETTERS =====================
+    // ===== GETTERS & SETTERS =====
 
     public Long getId() {
         return id;
@@ -111,21 +103,16 @@ public class FillLevelRecord {
         this.recordedAt = recordedAt;
     }
 
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = Timestamp.valueOf(recordedAt);
+    }
+
+    // ✅ NULL-SAFE getter (ONLY ONCE)
     public Boolean getIsWeekend() {
-        return isWeekend;
+        return isWeekend != null ? isWeekend : false;
     }
 
     public void setIsWeekend(Boolean isWeekend) {
         this.isWeekend = isWeekend;
     }
-    // ✅ ADD BELOW existing setters
-    public void setRecordedAt(LocalDateTime recordedAt) {
-        this.recordedAt = Timestamp.valueOf(recordedAt);
-    }
-    private Boolean isWeekend = false;
-    public Boolean getIsWeekend() {
-        return isWeekend != null ? isWeekend : false;
-    }
-
-    
 }

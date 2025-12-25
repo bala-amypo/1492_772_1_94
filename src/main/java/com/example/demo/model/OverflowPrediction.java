@@ -31,7 +31,7 @@ public class OverflowPrediction {
 
     private Timestamp generatedAt;
 
-    // ===================== CONSTRUCTORS =====================
+    // ===== CONSTRUCTORS =====
 
     public OverflowPrediction() {}
 
@@ -47,37 +47,31 @@ public class OverflowPrediction {
         this.generatedAt = generatedAt;
     }
 
-    // LocalDate + LocalDateTime
     public OverflowPrediction(Bin bin,
                               LocalDate predictedFullDate,
                               Integer daysUntilFull,
                               UsagePatternModel modelUsed,
                               LocalDateTime generatedAt) {
-        this(
-                bin,
-                Date.valueOf(predictedFullDate),
-                daysUntilFull,
-                modelUsed,
-                Timestamp.valueOf(generatedAt)
-        );
+        this(bin,
+             Date.valueOf(predictedFullDate),
+             daysUntilFull,
+             modelUsed,
+             Timestamp.valueOf(generatedAt));
     }
 
-    // For tests (java.util.Date)
     public OverflowPrediction(Bin bin,
                               java.util.Date predictedFullDate,
                               Integer daysUntilFull,
                               UsagePatternModel modelUsed,
                               Timestamp generatedAt) {
-        this(
-                bin,
-                new Date(predictedFullDate.getTime()),
-                daysUntilFull,
-                modelUsed,
-                generatedAt
-        );
+        this(bin,
+             new Date(predictedFullDate.getTime()),
+             daysUntilFull,
+             modelUsed,
+             generatedAt);
     }
 
-    // ===================== GETTERS & SETTERS =====================
+    // ===== GETTERS & SETTERS =====
 
     public Long getId() {
         return id;
@@ -95,8 +89,12 @@ public class OverflowPrediction {
         return predictedFullDate;
     }
 
-    public void setPredictedFullDate(Date predictedFullDate) {
-        this.predictedFullDate = predictedFullDate;
+    public void setPredictedFullDate(Date date) {
+        this.predictedFullDate = date;
+    }
+
+    public void setPredictedFullDate(LocalDate date) {
+        this.predictedFullDate = Date.valueOf(date);
     }
 
     public Integer getDaysUntilFull() {
@@ -122,20 +120,9 @@ public class OverflowPrediction {
     public void setGeneratedAt(Timestamp generatedAt) {
         this.generatedAt = generatedAt;
     }
-    // ✅ ADD BELOW existing setters
+
+    // ✅ ONLY ONE LocalDateTime setter
     public void setGeneratedAt(LocalDateTime generatedAt) {
         this.generatedAt = Timestamp.valueOf(generatedAt);
     }
-
-    public void setPredictedFullDate(LocalDate predictedFullDate) {
-        this.predictedFullDate = java.sql.Date.valueOf(predictedFullDate);
-    }
-    public void setGeneratedAt(java.time.LocalDateTime dt) {
-        this.generatedAt = java.sql.Timestamp.valueOf(dt);
-    }
-
-    public void setPredictedFullDate(java.time.LocalDate date) {
-        this.predictedFullDate = java.sql.Date.valueOf(date);
-    }
-
 }

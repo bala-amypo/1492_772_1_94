@@ -28,38 +28,28 @@ public class UsagePatternModel {
 
     private Timestamp lastUpdated;
 
-    // ===================== CONSTRUCTORS =====================
+    // ===== CONSTRUCTORS =====
 
-    // No-arg constructor (JPA)
-    public UsagePatternModel() {
-    }
+    public UsagePatternModel() {}
 
-    // Main constructor (Timestamp)
     public UsagePatternModel(Bin bin,
-                             Double avgDailyIncreaseWeekday,
-                             Double avgDailyIncreaseWeekend,
+                             Double weekday,
+                             Double weekend,
                              Timestamp lastUpdated) {
         this.bin = bin;
-        this.avgDailyIncreaseWeekday = avgDailyIncreaseWeekday;
-        this.avgDailyIncreaseWeekend = avgDailyIncreaseWeekend;
+        this.avgDailyIncreaseWeekday = weekday;
+        this.avgDailyIncreaseWeekend = weekend;
         this.lastUpdated = lastUpdated;
     }
 
-    // ✅ Overloaded constructor (LocalDateTime) – REQUIRED FOR TESTS
     public UsagePatternModel(Bin bin,
-                             Double avgDailyIncreaseWeekday,
-                             Double avgDailyIncreaseWeekend,
+                             Double weekday,
+                             Double weekend,
                              LocalDateTime lastUpdated) {
-
-        this(
-                bin,
-                avgDailyIncreaseWeekday,
-                avgDailyIncreaseWeekend,
-                Timestamp.valueOf(lastUpdated)
-        );
+        this(bin, weekday, weekend, Timestamp.valueOf(lastUpdated));
     }
 
-    // ===================== GETTERS & SETTERS =====================
+    // ===== GETTERS & SETTERS =====
 
     public Long getId() {
         return id;
@@ -73,20 +63,21 @@ public class UsagePatternModel {
         this.bin = bin;
     }
 
+    // ✅ NULL-SAFE getters (ONLY ONCE)
     public Double getAvgDailyIncreaseWeekday() {
-        return avgDailyIncreaseWeekday;
+        return avgDailyIncreaseWeekday != null ? avgDailyIncreaseWeekday : 0.0;
     }
 
-    public void setAvgDailyIncreaseWeekday(Double avgDailyIncreaseWeekday) {
-        this.avgDailyIncreaseWeekday = avgDailyIncreaseWeekday;
+    public void setAvgDailyIncreaseWeekday(Double value) {
+        this.avgDailyIncreaseWeekday = value;
     }
 
     public Double getAvgDailyIncreaseWeekend() {
-        return avgDailyIncreaseWeekend;
+        return avgDailyIncreaseWeekend != null ? avgDailyIncreaseWeekend : 0.0;
     }
 
-    public void setAvgDailyIncreaseWeekend(Double avgDailyIncreaseWeekend) {
-        this.avgDailyIncreaseWeekend = avgDailyIncreaseWeekend;
+    public void setAvgDailyIncreaseWeekend(Double value) {
+        this.avgDailyIncreaseWeekend = value;
     }
 
     public Timestamp getLastUpdated() {
@@ -96,16 +87,8 @@ public class UsagePatternModel {
     public void setLastUpdated(Timestamp lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
-    // ✅ ADD BELOW existing setters
+
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = Timestamp.valueOf(lastUpdated);
     }
-    public Double getAvgDailyIncreaseWeekday() {
-        return avgDailyIncreaseWeekday != null ? avgDailyIncreaseWeekday : 0.0;
-    }
-
-    public Double getAvgDailyIncreaseWeekend() {
-        return avgDailyIncreaseWeekend != null ? avgDailyIncreaseWeekend : 0.0;
-    }
-
 }
