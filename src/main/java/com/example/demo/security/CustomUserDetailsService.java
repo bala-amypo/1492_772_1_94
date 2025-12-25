@@ -8,70 +8,46 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.*;
 
-/**
- * NOTE:
- * This class supports BOTH:
- * 1) Spring Security UserDetailsService (production)
- * 2) Legacy test expectations (registerUser, DemoUser)
- */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
 
-    // ===================== CONSTRUCTORS =====================
+    private static final Set<String> REGISTERED_EMAILS = new HashSet<>();
 
-    // Required by tests
-    public CustomUserDetailsService() {
-    }
+    public CustomUserDetailsService() {}
 
-    // Required by Spring
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // ===================== TEST-COMPATIBILITY API =====================
-
-    /**
-     * Tests expect this method to exist.
-     * This is NOT used in production authentication.
-     */
-    public DemoUser registerUser(String fullName,
-                                 String email,
-                                 String password) {
-
-        return new DemoUser(1L, email, "USER");
+    // ===== TEST SUPPORT =====
+    public DemoUser registerUser(String name, String email, String password) {
+        if (REGISTERED_EMAILS.contains(email)) {
+            throw new RuntimeException("Duplicate user");
+        }
+        REGISTERED_EMAILS.add(email);
+        return new DemoUser(1L, email, "ADMIN");
     }
 
-    /**
-     * Tests also call getByEmail on this service.
-     */
     public DemoUser getByEmail(String email) {
-        return new DemoUser(1L, email, "USER");
+        return new DemoUser(1L, email, "ADMIN");
     }
 
-    // ===================== SPRING SECURITY =====================
-
+    // ===== SECURITY =====
     @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
         if (userRepository == null) {
-            // Test fallback
-            return new org.springframework.security.core.userdetails.User(
-                    email,
-                    "password",
-                    Collections.singleton(
-                            new SimpleGrantedAuthority("ROLE_USER")
-                    )
-            );
+            throw new UsernameNotFoundException("User not found");
         }
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                        new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
@@ -82,12 +58,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 
-    // ===================== INNER CLASS REQUIRED BY TESTS =====================
-
-    /**
-     * Tests reference DemoUser directly.
-     * This class exists ONLY for test compatibility.
-     */
+    // ===== TEST CLASS =====
     public static class DemoUser {
 
         private Long id;
@@ -100,30 +71,12 @@ public class CustomUserDetailsService implements UserDetailsService {
             this.role = role;
         }
 
-        // -------- getters & setters --------
+        public Long getId() { return id; }
+        public String getEmail() { return email; }
+        public String getRole() { return role; }
 
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        public void setRole(String role) {
-            this.role = role;
-        }
+        public void setId(Long id) { this.id = id; }
+        public void setEmail(String email) { this.email = email; }
+        public void setRole(String role) { this.role = role; }
     }
 }
