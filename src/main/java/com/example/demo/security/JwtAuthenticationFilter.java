@@ -27,6 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    // ✅ IMPORTANT: Do NOT apply JWT filter on auth endpoints
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getServletPath().startsWith("/auth/");
+    }
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -38,12 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmailFromJWT(token);
+
             UserDetails userDetails =
                     userDetailsService.loadUserByUsername(email);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
 
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
