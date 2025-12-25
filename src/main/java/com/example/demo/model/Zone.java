@@ -1,46 +1,46 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(
-        name = "zones",
-        uniqueConstraints = @UniqueConstraint(columnNames = "zoneName")
-)
+@Table(name = "zones")
 public class Zone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Zone name is required")
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String zoneName;
 
     private String description;
 
-    @Column(nullable = false)
     private Boolean active = true;
 
-    // No-arg constructor
+    // ===================== CONSTRUCTORS =====================
+
     public Zone() {}
 
-    // Parameterized constructor
-    public Zone(String zoneName, String description, Boolean active) {
+    public Zone(String zoneName,
+                String description,
+                Boolean active) {
         this.zoneName = zoneName;
         this.description = description;
         this.active = active;
     }
 
-    // 🔹 GETTERS & SETTERS 🔹
+    // For tests (extra LocalDateTime param)
+    public Zone(String zoneName,
+                String description,
+                Boolean active,
+                java.time.LocalDateTime ignored) {
+        this(zoneName, description, active);
+    }
+
+    // ===================== GETTERS & SETTERS =====================
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getZoneName() {

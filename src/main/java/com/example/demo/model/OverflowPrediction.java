@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.sql.Date;
@@ -18,11 +17,9 @@ public class OverflowPrediction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "bin_id", nullable = false)
-    @NotNull
+    @JoinColumn(name = "bin_id")
     private Bin bin;
 
-    @NotNull
     private Date predictedFullDate;
 
     @PositiveOrZero
@@ -36,11 +33,8 @@ public class OverflowPrediction {
 
     // ===================== CONSTRUCTORS =====================
 
-    // No-arg constructor (JPA)
-    public OverflowPrediction() {
-    }
+    public OverflowPrediction() {}
 
-    // Main constructor (Date + Timestamp)
     public OverflowPrediction(Bin bin,
                               Date predictedFullDate,
                               Integer daysUntilFull,
@@ -53,19 +47,33 @@ public class OverflowPrediction {
         this.generatedAt = generatedAt;
     }
 
-    // ✅ Overloaded constructor (LocalDate + LocalDateTime) – REQUIRED FOR TESTS
+    // LocalDate + LocalDateTime
     public OverflowPrediction(Bin bin,
                               LocalDate predictedFullDate,
                               Integer daysUntilFull,
                               UsagePatternModel modelUsed,
                               LocalDateTime generatedAt) {
-
         this(
                 bin,
                 Date.valueOf(predictedFullDate),
                 daysUntilFull,
                 modelUsed,
                 Timestamp.valueOf(generatedAt)
+        );
+    }
+
+    // For tests (java.util.Date)
+    public OverflowPrediction(Bin bin,
+                              java.util.Date predictedFullDate,
+                              Integer daysUntilFull,
+                              UsagePatternModel modelUsed,
+                              Timestamp generatedAt) {
+        this(
+                bin,
+                new Date(predictedFullDate.getTime()),
+                daysUntilFull,
+                modelUsed,
+                generatedAt
         );
     }
 

@@ -32,10 +32,10 @@ public class FillLevelRecord {
 
     private Boolean isWeekend;
 
-    // JPA
+    // ===================== CONSTRUCTORS =====================
+
     public FillLevelRecord() {}
 
-    // MAIN
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            Timestamp recordedAt,
@@ -46,7 +46,7 @@ public class FillLevelRecord {
         this.isWeekend = isWeekend;
     }
 
-    // ✅ Already added
+    // For LocalDateTime + isWeekend
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            LocalDateTime recordedAt,
@@ -59,7 +59,7 @@ public class FillLevelRecord {
         );
     }
 
-    // ✅ ADD THIS (tests require it)
+    // For tests (LocalDateTime only)
     public FillLevelRecord(Bin bin,
                            Double fillPercentage,
                            LocalDateTime recordedAt) {
@@ -74,13 +74,48 @@ public class FillLevelRecord {
     @PrePersist
     public void calculateWeekend() {
         if (recordedAt != null) {
-            DayOfWeek day = recordedAt
-                    .toLocalDateTime()
-                    .getDayOfWeek();
+            DayOfWeek day =
+                    recordedAt.toLocalDateTime().getDayOfWeek();
             this.isWeekend =
                     (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY);
         }
     }
 
-    // getters & setters omitted for brevity
+    // ===================== GETTERS & SETTERS =====================
+
+    public Long getId() {
+        return id;
+    }
+
+    public Bin getBin() {
+        return bin;
+    }
+
+    public void setBin(Bin bin) {
+        this.bin = bin;
+    }
+
+    public Double getFillPercentage() {
+        return fillPercentage;
+    }
+
+    public void setFillPercentage(Double fillPercentage) {
+        this.fillPercentage = fillPercentage;
+    }
+
+    public Timestamp getRecordedAt() {
+        return recordedAt;
+    }
+
+    public void setRecordedAt(Timestamp recordedAt) {
+        this.recordedAt = recordedAt;
+    }
+
+    public Boolean getIsWeekend() {
+        return isWeekend;
+    }
+
+    public void setIsWeekend(Boolean isWeekend) {
+        this.isWeekend = isWeekend;
+    }
 }
