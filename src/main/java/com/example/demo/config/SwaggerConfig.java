@@ -28,7 +28,7 @@ public class SwaggerConfig {
                 )
                 .info(new Info().title("Smart Waste Management API"))
                 .servers(List.of(
-                        new Server().url("https://9154.408procr.amypo.ai/")
+                        new Server().url("https://9016.pro604cr.amypo.ai/")
                 ));
     }
 }
