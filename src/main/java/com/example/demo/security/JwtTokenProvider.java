@@ -1,11 +1,16 @@
 package com.example.demo.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.Claims;
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 
+@Component
 public class JwtTokenProvider {
 
-    private final String secret = "verySecretKey123";
+    private final String secret = "verySecretKey123456";
     private final long validityMs = 24 * 60 * 60 * 1000; // 1 day
 
     public String generateToken(Long userId, String email, String role) {
@@ -23,12 +28,5 @@ public class JwtTokenProvider {
                 .setExpiration(expiry)
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
-    }
-
-    public String getEmail(String token) {
-        return Jwts.parser().setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
     }
 }

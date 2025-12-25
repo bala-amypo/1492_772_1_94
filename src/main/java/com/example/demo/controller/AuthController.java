@@ -28,7 +28,6 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // ✅ REGISTER
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> register(
             @RequestBody User user) {
@@ -37,17 +36,14 @@ public class AuthController {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPassword(),
-                "USER"   // ✅ REQUIRED 4th ARGUMENT
+                "USER"
         );
 
         return ResponseEntity.ok(
-                new ApiResponse<>(true,
-                        "User registered successfully",
-                        savedUser)
+                new ApiResponse<>(true, "User registered successfully", savedUser)
         );
     }
 
-    // ✅ LOGIN
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @RequestBody AuthRequest request) {
