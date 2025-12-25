@@ -4,6 +4,7 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (role == null || role.isBlank()) {
-            role = "USER"; // default role
+            role = "USER";   // default role
         }
 
         String encodedPassword = passwordEncoder.encode(password);
