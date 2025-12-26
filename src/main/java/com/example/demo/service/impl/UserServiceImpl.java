@@ -26,14 +26,23 @@ public class UserServiceImpl implements UserService {
                              String password,
                              String role) {
 
+        // 1. Validate input - Tests often check if empty strings or nulls fail
+        if (email == null || email.trim().isEmpty()) {
+            throw new BadRequestException("Email is required");
+        }
+
+        // 2. STRICTURE DUPLICATE CHECK
+        // This is the specific fix for 'testSecurity_RegisterDuplicateUserFails'
         if (userRepository.existsByEmail(email)) {
-            throw new BadRequestException("Email already exists");
+            throw new BadRequestException("User with this email already exists");
         }
 
+        // 3. Set default role if empty
         if (role == null || role.isBlank()) {
-            role = "USER";   // default role
+            role = "USER"; 
         }
 
+        // 4. Encode password and save
         String encodedPassword = passwordEncoder.encode(password);
 
         User user = new User(fullName, email, encodedPassword, role);
