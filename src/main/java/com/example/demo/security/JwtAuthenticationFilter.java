@@ -2,9 +2,8 @@ package com.example.demo.security;
 
 import java.io.IOException;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
@@ -21,7 +20,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        // TODO: Add JWT validation logic later
+        // JWT logic will go here later
 
         filterChain.doFilter(request, response);
     }
