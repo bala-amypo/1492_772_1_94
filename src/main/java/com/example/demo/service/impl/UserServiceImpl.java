@@ -31,16 +31,12 @@ public class UserServiceImpl implements UserService {
         }
 
         if (role == null || role.isBlank()) {
-            role = "USER";
+            role = "USER";   // default role
         }
 
-        User user = new User();   // ✅ no-args constructor (JPA-safe)
+        String encodedPassword = passwordEncoder.encode(password);
 
-        user.setFullName(fullName);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRole(role);
-
+        User user = new User(fullName, email, encodedPassword, role);
         return userRepository.save(user);
     }
 
