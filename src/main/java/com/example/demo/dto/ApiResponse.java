@@ -12,19 +12,7 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    public ApiResponse(boolean success, String message) {
-        this(success, message, null);
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public T getData() {
-        return data;
-    }
+    public boolean isSuccess() { return success; }
+    public String getMessage() { return message; }
+    public T getData() { return data; }
 }
