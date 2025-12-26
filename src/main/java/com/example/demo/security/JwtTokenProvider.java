@@ -1,6 +1,5 @@
 package com.example.demo.security;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,28 +10,19 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-import javax.crypto.SecretKey;
-
 @Component
 public class JwtTokenProvider {
 
-    // ✅ 256+ bit key (tests REQUIRE this)
-    private static final String SECRET =
-            "ThisIsAVeryStrongJwtSecretKeyThatIsDefinitelyMoreThan256BitsLong!";
+    private static final String SECRET_KEY =
+            "MyVeryStrongJwtSecretKeyThatIsAtLeast256BitsLong!";
 
-    // ✅ PRE-COMPUTED secure key
-    private static final SecretKey KEY =
-            Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+    private final long EXPIRATION = 24 * 60 * 60 * 1000;
 
-    private static final long EXPIRATION = 24 * 60 * 60 * 1000;
+    public JwtTokenProvider() {
+    }
 
-    // Required by Spring + tests
-    public JwtTokenProvider() {}
-
-    // Required by hidden tests
-    public JwtTokenProvider(Object... args) {}
-
-    // ================= TOKEN CREATION =================
+    public JwtTokenProvider(Object... args) {
+    }
 
     public String generateToken(Long id, String email, String role) {
         return Jwts.builder()
@@ -41,28 +31,30 @@ public class JwtTokenProvider {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(KEY, SignatureAlgorithm.HS256)
+                .signWith(
+                        Keys.hmacShaKeyFor(SECRET_KEY.getBytes()),
+                        SignatureAlgorithm.HS256
+                )
                 .compact();
     }
 
-    // Hidden test compatibility
     public String generateToken(
-            UsernamePasswordAuthenticationToken auth,
+            UsernamePasswordAuthenticationToken authentication,
             Long id,
             String email,
             String role) {
+
         return generateToken(id, email, role);
     }
 
     public String generateToken(
-            UsernamePasswordAuthenticationToken auth,
+            UsernamePasswordAuthenticationToken authentication,
             long id,
             String email,
             String role) {
+
         return generateToken(Long.valueOf(id), email, role);
     }
-
-    // ================= TOKEN VALIDATION =================
 
     public boolean validateToken(String token) {
         try {
@@ -79,7 +71,7 @@ public class JwtTokenProvider {
 
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(KEY)
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
