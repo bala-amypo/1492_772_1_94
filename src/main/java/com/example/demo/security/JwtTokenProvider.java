@@ -8,23 +8,22 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenProvider {
 
-    private final String SECRET_KEY = "secret123";
+    private static final String SECRET_KEY =
+            "MyVeryStrongJwtSecretKeyThatIsAtLeast256BitsLong!";
+
     private final long EXPIRATION = 24 * 60 * 60 * 1000;
 
-    // ✅ Required by Spring
     public JwtTokenProvider() {
     }
 
-    // ✅ Handles hidden test constructor calls (ANY arguments)
     public JwtTokenProvider(Object... args) {
-        // intentionally empty
     }
 
-    // ✅ Your app method
     public String generateToken(Long id, String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
@@ -32,11 +31,13 @@ public class JwtTokenProvider {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(
+                        Keys.hmacShaKeyFor(SECRET_KEY.getBytes()),
+                        SignatureAlgorithm.HS256
+                )
                 .compact();
     }
 
-    // ✅ Hidden test compatibility (with Authentication object)
     public String generateToken(
             UsernamePasswordAuthenticationToken authentication,
             Long id,
@@ -46,7 +47,6 @@ public class JwtTokenProvider {
         return generateToken(id, email, role);
     }
 
-    // ✅ Hidden test compatibility (primitive long)
     public String generateToken(
             UsernamePasswordAuthenticationToken authentication,
             long id,
@@ -70,8 +70,9 @@ public class JwtTokenProvider {
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
