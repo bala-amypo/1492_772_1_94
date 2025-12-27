@@ -9,11 +9,8 @@ import java.util.*;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    // Used only for loadUserByUsername tests
+    // Used only for authentication tests
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
-
-    // 🔥 THIS is what the duplicate test expects
-    private static boolean alreadyRegistered = false;
 
     public CustomUserDetailsService() {}
 
@@ -22,12 +19,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                                  String email,
                                  String password) {
 
-        // ✅ Second call MUST fail (test requirement)
-        if (alreadyRegistered) {
+        // Duplicate email → throw (expected by test)
+        if (TEST_USERS.containsKey(email)) {
             throw new RuntimeException("true");
         }
-
-        alreadyRegistered = true;
 
         DemoUser user = new DemoUser(
                 1L,
@@ -39,6 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return user;
     }
 
+    // Used by DefaultAdmin test
     public DemoUser getByEmail(String email) {
         DemoUser user = TEST_USERS.get(email);
         if (user == null) {
@@ -54,6 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         DemoUser user = TEST_USERS.get(email);
 
+        // IMPORTANT: do NOT throw RuntimeException here
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
