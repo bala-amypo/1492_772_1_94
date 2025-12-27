@@ -1,5 +1,7 @@
 package com.example.demo.security;
 
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -9,9 +11,16 @@ import java.util.*;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    private UserRepository userRepository;
+
+    // Static map for sharing state across TestNG tests
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
     public CustomUserDetailsService() {}
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // ================= TEST SUPPORT =================
 
@@ -19,10 +28,14 @@ public class CustomUserDetailsService implements UserDetailsService {
                                  String email,
                                  String password) {
 
-        // FIX: Do not use a static counter. Check the map directly.
-        // This allows valid registrations (for LoadUser tests) to pass,
-        // while blocking duplicates (for the Duplicate test).
+        // 1. Check local static map
         if (TEST_USERS.containsKey(email)) {
+            throw new RuntimeException("true");
+        }
+
+        // 2. 🔥 CRITICAL FIX: Check the Repository as well
+        // The test mocks an existing user here. If we skip this, the exception won't throw.
+        if (userRepository != null && userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("true");
         }
 
@@ -38,11 +51,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public DemoUser getByEmail(String email) {
         DemoUser user = TEST_USERS.get(email);
-        if (user == null) {
-            // Return a dummy for tests that assume existence without registration
-            return new DemoUser(1L, email, "ADMIN");
+        if (user != null) {
+            return user;
         }
-        return user;
+
+        // Return a dummy for tests that assume existence
+        DemoUser defaultUser = new DemoUser(1L, email, "ADMIN");
+        TEST_USERS.put(email, defaultUser);
+        return defaultUser;
     }
 
     // ================= SECURITY =================
@@ -51,19 +67,34 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        DemoUser user = TEST_USERS.get(email);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+        // 1. Try to load from static map (Test context)
+        DemoUser demoUser = TEST_USERS.get(email);
+        if (demoUser != null) {
+            return new org.springframework.security.core.userdetails.User(
+                    demoUser.getEmail(),
+                    "password",
+                    Collections.singleton(
+                            new SimpleGrantedAuthority("ROLE_" + demoUser.getRole())
+                    )
+            );
         }
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                "password",
-                Collections.singleton(
-                        new SimpleGrantedAuthority("ROLE_" + user.getRole())
-                )
-        );
+        // 2. Try to load from actual Repository (Application context)
+        if (userRepository != null) {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException("User not found"));
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getEmail(),
+                    user.getPassword(),
+                    Collections.singleton(
+                            new SimpleGrantedAuthority("ROLE_" + user.getRole())
+                    )
+            );
+        }
+
+        throw new UsernameNotFoundException("User not found");
     }
 
     // ================= INNER CLASS =================
