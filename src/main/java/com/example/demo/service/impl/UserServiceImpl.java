@@ -7,24 +7,37 @@ import com.example.demo.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+// Import UserDetailsService to check both Test Map and DB
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService; // Add this field
 
+    // Update Constructor to inject UserDetailsService
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           UserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
     public User registerUser(String fullName, String email, String password, String role) {
         // Validation check for duplicates
-        if (userRepository.existsByEmail(email)) {
+        // MODIFIED: Check userDetailsService instead of repository directly.
+        // userDetailsService checks BOTH the hidden TEST_USERS map and the DB.
+        try {
+            userDetailsService.loadUserByUsername(email);
+            // If the line above does NOT throw an exception, the user exists.
             throw new BadRequestException("Email already exists");
+        } catch (UsernameNotFoundException e) {
+            // User not found. This is good! We can proceed to register.
         }
 
         if (role == null || role.isBlank()) {
