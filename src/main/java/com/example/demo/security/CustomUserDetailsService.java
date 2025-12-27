@@ -23,20 +23,47 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     // ================= TEST SUPPORT =================
-    public boolean registerUser(String fullName, String email, String password) {
-        if (TEST_USERS.containsKey(email) ||
-            (userRepository != null && userRepository.findByEmail(email).isPresent())) {
-            return false;
+
+    /**
+     * Registers a new user and returns the DemoUser object.
+     * Throws IllegalStateException if the user already exists.
+     */
+    public DemoUser registerUser(String fullName,
+                                 String email,
+                                 String password) {
+
+        // 1. Check local static map
+        if (TEST_USERS.containsKey(email)) {
+            throw new IllegalStateException("User already exists");
+        }
+
+        // 2. Check the Repository as well
+        if (userRepository != null && userRepository.findByEmail(email).isPresent()) {
+            throw new IllegalStateException("User already exists");
         }
 
         DemoUser user = new DemoUser(
-            (long) (TEST_USERS.size() + 1),
-            email,
-            "ADMIN"
+                (long) (TEST_USERS.size() + 1),
+                email,
+                "ADMIN"
         );
 
         TEST_USERS.put(email, user);
-        return true;
+        return user; // ✅ returns DemoUser
+    }
+
+    /**
+     * Wrapper for tests that expect true/false instead of DemoUser.
+     */
+    public boolean tryRegisterUser(String fullName,
+                                   String email,
+                                   String password) {
+        try {
+            registerUser(fullName, email, password);
+            return true;   // ✅ success
+        } catch (IllegalStateException e) {
+            return false;  // ✅ failure
+        }
     }
 
     public DemoUser getByEmail(String email) {
