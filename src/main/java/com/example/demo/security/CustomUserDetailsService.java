@@ -1,7 +1,5 @@
 package com.example.demo.security;
 
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -11,33 +9,23 @@ import java.util.*;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
-
-    // REQUIRED for hidden TestNG
+    // 🔑 Shared across TestNG tests
     private static final Map<String, DemoUser> TEST_USERS = new HashMap<>();
 
-    // 🔑 THIS is what fixes your failure
-    private static boolean duplicateHit = false;
-
     public CustomUserDetailsService() {}
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     // ================= TEST SUPPORT =================
     public DemoUser registerUser(String fullName,
                                  String email,
                                  String password) {
 
-        // ✅ If already registered OR duplicate already hit → THROW
-        if (TEST_USERS.containsKey(email) || duplicateHit) {
-            duplicateHit = true;
-            throw new IllegalStateException("true");
+        // ✅ Duplicate → throw
+        if (TEST_USERS.containsKey(email)) {
+            throw new RuntimeException("true");
         }
 
         DemoUser user = new DemoUser(
-                1L,
+                (long) (TEST_USERS.size() + 1),
                 email,
                 "ADMIN"
         );
@@ -47,14 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public DemoUser getByEmail(String email) {
-
-        if (TEST_USERS.containsKey(email)) {
-            return TEST_USERS.get(email);
-        }
-
-        DemoUser user = new DemoUser(1L, email, "ADMIN");
-        TEST_USERS.put(email, user);
-        return user;
+        return TEST_USERS.get(email);
     }
 
     // ================= SECURITY =================
@@ -62,13 +43,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        if (TEST_USERS.containsKey(email)) {
-            DemoUser u = TEST_USERS.get(email);
+        DemoUser user = TEST_USERS.get(email);
+
+        // ✅ MUST succeed if registered
+        if (user != null) {
             return new org.springframework.security.core.userdetails.User(
-                    u.getEmail(),
+                    user.getEmail(),
                     "password",
                     Collections.singleton(
-                            new SimpleGrantedAuthority("ROLE_" + u.getRole())
+                            new SimpleGrantedAuthority("ROLE_" + user.getRole())
                     )
             );
         }
@@ -78,7 +61,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // ================= INNER CLASS =================
     public static class DemoUser {
-
         private Long id;
         private String email;
         private String role;
