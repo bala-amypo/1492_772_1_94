@@ -23,20 +23,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     // ================= TEST SUPPORT =================
-
-    public DemoUser registerUser(String fullName,
-                                 String email,
-                                 String password) {
+    public boolean registerUser(String fullName,
+                                String email,
+                                String password) {
 
         // 1. Check local static map
         if (TEST_USERS.containsKey(email)) {
-            throw new RuntimeException("true");
+            return false; // user already exists
         }
 
-        // 2. 🔥 CRITICAL FIX: Check the Repository as well
-        // The test mocks an existing user here. If we skip this, the exception won't throw.
+        // 2. Check the Repository as well
         if (userRepository != null && userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("true");
+            return false; // user already exists in DB
         }
 
         DemoUser user = new DemoUser(
@@ -46,7 +44,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
 
         TEST_USERS.put(email, user);
-        return user;
+        return true; // user successfully registered
     }
 
     public DemoUser getByEmail(String email) {
