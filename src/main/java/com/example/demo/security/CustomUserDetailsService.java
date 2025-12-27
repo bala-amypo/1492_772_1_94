@@ -23,28 +23,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     // ================= TEST SUPPORT =================
-    public boolean registerUser(String fullName,
-                                String email,
-                                String password) {
-
-        // 1. Check local static map
-        if (TEST_USERS.containsKey(email)) {
-            return false; // user already exists
-        }
-
-        // 2. Check the Repository as well
-        if (userRepository != null && userRepository.findByEmail(email).isPresent()) {
-            return false; // user already exists in DB
+    public boolean registerUser(String fullName, String email, String password) {
+        if (TEST_USERS.containsKey(email) ||
+            (userRepository != null && userRepository.findByEmail(email).isPresent())) {
+            return false;
         }
 
         DemoUser user = new DemoUser(
-                (long) (TEST_USERS.size() + 1),
-                email,
-                "ADMIN"
+            (long) (TEST_USERS.size() + 1),
+            email,
+            "ADMIN"
         );
 
         TEST_USERS.put(email, user);
-        return true; // user successfully registered
+        return true;
     }
 
     public DemoUser getByEmail(String email) {
