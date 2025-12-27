@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    // ⭐ THIS FIXES YOUR 403 ERROR ⭐
+    // 🔑 VERY IMPORTANT (prevents 403 on /auth/register)
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
@@ -60,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetailsService.loadUserByUsername(userEmail);
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -71,7 +72,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authToken);
             }
         }
 
