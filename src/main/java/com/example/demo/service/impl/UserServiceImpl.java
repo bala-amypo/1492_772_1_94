@@ -21,30 +21,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(String fullName,
-                             String email,
-                             String password,
-                             String role) {
-
+    public User registerUser(String fullName, String email, String password, String role) {
+        // Validation check for duplicates
         if (userRepository.existsByEmail(email)) {
             throw new BadRequestException("Email already exists");
         }
 
         if (role == null || role.isBlank()) {
-            role = "USER";   // default role
+            role = "USER";
         }
 
         String encodedPassword = passwordEncoder.encode(password);
-
         User user = new User(fullName, email, encodedPassword, role);
+        
         return userRepository.save(user);
     }
 
     @Override
     public User getByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Override

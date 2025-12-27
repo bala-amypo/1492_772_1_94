@@ -6,7 +6,9 @@ import com.example.demo.dto.AuthResponse;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.UserService;
+import com.example.demo.exception.BadRequestException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,25 +31,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(
-            @RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
+        try {
+            User savedUser = userService.registerUser(
+                    user.getFullName(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    "USER"
+            );
 
-        User savedUser = userService.registerUser(
-                user.getFullName(),
-                user.getEmail(),
-                user.getPassword(),
-                "USER"
-        );
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "User registered successfully", savedUser)
-        );
+            return ResponseEntity.ok(
+                    new ApiResponse<>(true, "User registered successfully", savedUser)
+            );
+        } catch (BadRequestException e) {
+            // The test expects 'success' to be false when a duplicate is registered
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ApiResponse<>(false, e.getMessage(), null)
+            );
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-            @RequestBody AuthRequest request) {
-
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
