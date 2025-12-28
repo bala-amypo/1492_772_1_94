@@ -30,29 +30,39 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    // ✅ REGISTER
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> register(@RequestBody AuthRequest request) {
+
+        if (request.getEmail() == null || request.getPassword() == null) {
+            return ResponseEntity.badRequest().body(
+                    new ApiResponse<>(false, "Email and password are required")
+            );
+        }
+
         try {
             User savedUser = userService.registerUser(
-                    user.getFullName(),
-                    user.getEmail(),
-                    user.getPassword(),
-                    "USER"
+                    request.getFullName(),
+                    request.getEmail(),
+                    request.getPassword(),
+                    request.getRole() != null ? request.getRole() : "USER"
             );
 
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "User registered successfully", savedUser)
             );
+
         } catch (BadRequestException e) {
-            // The test expects 'success' to be false when a duplicate is registered
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new ApiResponse<>(false, e.getMessage(), null)
+                    new ApiResponse<>(false, e.getMessage())
             );
         }
     }
 
+    // ✅ LOGIN
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
