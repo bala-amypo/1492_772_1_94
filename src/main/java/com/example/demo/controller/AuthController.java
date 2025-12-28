@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*") // IMPORTANT for frontend calls
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;
@@ -21,10 +21,18 @@ public class AuthController {
 
     // ✅ REGISTER (NO TOKEN REQUIRED)
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(
-            @RequestBody AuthRequest request) {
+    public ResponseEntity<ApiResponse> register(@RequestBody AuthRequest request) {
 
-        User user = userService.register(request);
+        // fullName & role are not in AuthRequest → handled here
+        String fullName = "User";        // default value
+        String role = "USER";            // default role
+
+        User user = userService.registerUser(
+                fullName,
+                request.getEmail(),
+                request.getPassword(),
+                role
+        );
 
         ApiResponse response = new ApiResponse(
                 true,
@@ -35,12 +43,19 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // ✅ LOGIN (JWT TOKEN)
+    // 🚧 LOGIN (TEMP PLACEHOLDER – JWT comes later)
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(
-            @RequestBody AuthRequest request) {
+    public ResponseEntity<ApiResponse> login(@RequestBody AuthRequest request) {
 
-        ApiResponse response = userService.login(request);
+        // Just verify user exists (no JWT yet)
+        User user = userService.getByEmail(request.getEmail());
+
+        ApiResponse response = new ApiResponse(
+                true,
+                "Login successful",
+                user
+        );
+
         return ResponseEntity.ok(response);
     }
 }
