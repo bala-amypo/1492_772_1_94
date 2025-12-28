@@ -4,26 +4,43 @@ import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*") // IMPORTANT for frontend calls
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
 
     // ✅ REGISTER (NO TOKEN REQUIRED)
     @PostMapping("/register")
-    public ApiResponse register(@RequestBody AuthRequest request) {
+    public ResponseEntity<ApiResponse> register(
+            @RequestBody AuthRequest request) {
+
         User user = userService.register(request);
-        return new ApiResponse(true, "User registered successfully", user);
+
+        ApiResponse response = new ApiResponse(
+                true,
+                "User registered successfully",
+                user
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     // ✅ LOGIN (JWT TOKEN)
     @PostMapping("/login")
-    public ApiResponse login(@RequestBody AuthRequest request) {
-        return userService.login(request);
+    public ResponseEntity<ApiResponse> login(
+            @RequestBody AuthRequest request) {
+
+        ApiResponse response = userService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
