@@ -1,4 +1,5 @@
 package com.example.demo.config;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -21,16 +22,15 @@ public class SwaggerConfig {
                 .bearerFormat("JWT");
 
         return new OpenAPI()
-                // Server
+                // ✅ Multiple servers (local + production)
                 .servers(List.of(
-                        new Server().url("https://9016.pro604cr.amypo.ai/")
+                        new Server().url("http://localhost:9001").description("Local"),
+                        new Server().url("https://9016.pro604cr.amypo.ai").description("Production")
                 ))
-                // JWT Security
+                // ✅ JWT definition
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", bearerScheme)
-                )
-                .addSecurityItem(
-                        new SecurityRequirement().addList("bearerAuth")
                 );
+                // ❌ DO NOT force security globally
     }
 }
